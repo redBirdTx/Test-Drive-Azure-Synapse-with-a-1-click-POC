@@ -1,0 +1,42 @@
+{
+	"name": "Pipeline 1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Read and write data from Azure Data Lake Storage Gen2",
+				"type": "SynapseNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "Read and write data from Azure Data Lake Storage Gen2",
+						"type": "NotebookReference"
+					},
+					"parameters": {
+						"a": {
+							"value": "",
+							"type": "int"
+						},
+						"b": {
+							"value": "",
+							"type": "int"
+						},
+						"c": {
+							"value": "",
+							"type": "int"
+						}
+					},
+					"snapshot": true
+				}
+			}
+		],
+		"annotations": []
+	}
+}
