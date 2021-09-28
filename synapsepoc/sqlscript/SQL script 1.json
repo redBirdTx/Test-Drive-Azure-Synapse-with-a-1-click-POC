@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 1",
+	"properties": {
+		"content": {
+			"query": "\ncreate database nyctaxi;\nUSE nyctaxi;\n\n--DROP EXTERNAL DATA SOURCE ds_public_tripfare\n\nCREATE EXTERNAL DATA SOURCE ds_public_tripfare\n\nWITH (    LOCATION   = 'https://edujzqnmcsxl5xmepoc.dfs.core.windows.net/public/'\n\n)\n\nGO\n\n--DROP EXTERNAL FILE FORMAT delimited_public_tripfare  \n\nCREATE EXTERNAL FILE FORMAT delimited_public_tripfare  \n\nWITH (  \n\n    FORMAT_TYPE = DELIMITEDTEXT,  \n\n    FORMAT_OPTIONS (  \n\n        FIELD_TERMINATOR = ',', \n\n        FIRST_ROW = 2, \n\n        USE_TYPE_DEFAULT = True,\n\n        STRING_DELIMITER = '\"'\n\n          )\n\n)\n\nDROP EXTERNAL TABLE nyc.public_tripfare\n\nCREATE SCHEMA nyc\n--table would bring all column to memory\nCREATE EXTERNAL TABLE nyc.public_tripfare (medallion varchar(100),\n\n    hack_license varchar(100),\n\n    vendor_id varchar(100),\n\n    pickup_datetime varchar(100),\n\n    payment_type varchar(100),\n\n    fare_amount varchar(100),\n\n    surcharge varchar(100), \n\n    mta_tax varchar(100),\n\n    tip_amount varchar(100),\n\n    tolls_amount varchar(100),  \n\n    total_amount varchar(100)\n\n)\n\nWITH (DATA_SOURCE = ds_public_tripfare, LOCATION = N'fares-data.csv',FILE_FORMAT = delimited_public_tripfare)\n\nGO\n\nSELECT TOP 10 * FROM nyc.public_tripfare\n\n--parquet stores in column fashion (brings only needed column to memory)\nCREATE EXTERNAL FILE FORMAT public_nycparquet  \n\nWITH (  \n\n    FORMAT_TYPE = PARQUET  ,  \n\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n\n)\nDROP EXTERNAL TABLE dbo.public_agg_nyc_tripfare\n\nCREATE EXTERNAL TABLE dbo.public_agg_nyc_tripfare\n\n    WITH (\n\n        LOCATION = '/agg',  \n\n        DATA_SOURCE = ds_public_tripfare,  \n\n        FILE_FORMAT = public_nycparquet  \n\n)\n\n    AS SELECT \n\n    vendor_id\n\n    ,hack_license\n\n    ,SUM(CAST(fare_amount AS FLOAT)) fare_amount\n\n    ,SUM(CAST(total_amount AS float)) total_amount\n\n    FROM nyc.public_tripfare\n\n    GROUP BY \n\n    vendor_id\n\n    ,hack_license\n\n    SELECT TOP 10 * FROM dbo.public_agg_nyc_tripfare\n\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyctaxi",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
